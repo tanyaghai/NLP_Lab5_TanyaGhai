@@ -21,18 +21,29 @@ def get_files(dirname):
 class WikiArticles():
 
     def __init__(self, data_dir, max_articles=None):
+        """
+        constructor for the WikiArticles class and initializes the data_dir and max_articles attributes
+        also initalizes the article_names attribute to None
+        """
         self.data_dir = data_dir
         self.max_articles = max_articles
         self.article_names = None
 
     def _read_wiki_file(self, fp):
+        """
+        find the name and abstract of each article in the file and yield them as a tuple (name, abstract)
+        """
         for line in fp:
-            line_as_json = None # TODO replace me: use the json library to parse the current line as a JSON object
-            name = None         # TODO replace me: in the JSON object you got above, look up the value of the "name" attribute
-            abstract = None     # TODO replace me: in the JSON object you got above, look up the value of the "abstract" attribute
+            line_as_json = json.loads(line) # use the json library to parse the current line as a JSON object
+            name = line_as_json.get("name")    #   in the JSON object you got above, look up the value of the "name" attribute
+            abstract = line_as_json.get("abstract") #  in the JSON object you got above, look up the value of the "abstract" attribute
             yield name, abstract
 
     def get_abstracts(self):
+        """
+        gets abstracts for max_articles in the data_dir where each abstract is yielded and a name of
+        the article is stored in the article_names attribute
+        """
         n_processed = 0
         for fname in get_files(self.data_dir):
             with open(fname) as fp:
@@ -49,6 +60,9 @@ class WikiArticles():
                     yield abstract
 
     def get_names(self):
+        """
+        simply returns the article_names attribute or raises a RuntimeError if get_abstracts has not been called yet
+        """
         if self.article_names is None:
             raise RuntimeError("get_names cannot be called until get_abstracts has been called!")
         return self.article_names
